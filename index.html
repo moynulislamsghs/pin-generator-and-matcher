@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pin Generator</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css" integrity="sha384-9aIt2nRpC12Uk9gS9baDl411NQApFmC26EwAOH8WgZl5MYYxFfc+NcPb1dKGj7Sk" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6">
+                <div class="pin-generator half-width">
+                    <input id="pinGenerationDisplay" class="form-control" type="text">
+                    <button id="pinGenerate" class="generate-btn">Generate Pin</button>
+                </div>
+            </div>
+            <div class="col-md-6">
+                <div class="input-section half-width">
+                    <input id="pinInputDisplay" class="form-control" type="text">
+                    <div class="numbers">
+                        <div class="calc-body">
+                            <div class="calc-button-row">
+                              <div id="button7" class="button">7</div>
+                              <div id="button8" class="button">8</div>
+                              <div id="button9" class="button">9</div>
+                            </div>
+                            <div class="calc-button-row">
+                              <div id="button4" class="button">4</div>
+                              <div id="button5" class="button">5</div>
+                              <div id="button6" class="button">6</div>
+                            </div>
+                            <div class="calc-button-row">
+                              <div id="button1" class="button">1</div>
+                              <div id="button2" class="button">2</div>
+                              <div id="button3" class="button">3</div>
+                            </div>
+                            <div class="calc-button-row">
+                                <!-- <div id="backSpaceButton" class="button">&lt;</div> -->
+                                <div id="backSpaceButton" class="button"><i class="material-icons">backspace</i></div>
+                                <div id="button0" class="button">0</div>
+                                <div id="clearButton" class="button">C</div>
+                            </div>
+                            <div>
+                                <button id="submitButton" type="submit" class="submit-btn">Submit</button>
+                                <p class="action-left"><span id="pinMatchingCount">3</span> try left</p>
+                            </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="popup" id="successPopupSection">
+            <img src="image/404-tick.png" alt="">
+            <p id="accessMatchedMsg">✅ Pin Matched... Secret door is opening for you</p>
+            <h1>Thank You!</h1>
+            <button type="button">OK</button>
+        </div>
+        <div class="popup" id="unsuccessPopupSection">
+            <img src="image/accessDenied.jpg" alt="">
+            <p id="accessDeniedMsg">❌ Pin Didn't Match, Please try again</p>
+            <h1>Thank You!</h1>
+            <button type="button">OK</button>
+        </div>
+    </div>
+
+    <!-- End of html part -->
+
+    <!-- javascript starts here -->
+
+    <script>
+        // pin generator starts here
+        var pinGenerate = document.getElementById("pinGenerate");
+        pinGenerate.addEventListener("click", function(){
+            function pinGenerator(){
+                let pin = Math.random()*1000000;
+                pin = parseInt(pin);
+                if(pin < 100000){
+                    pinGenerator();
+                }
+                else{
+                    document.getElementById("pinGenerationDisplay").value = pin;
+                }
+                
+            }
+            pinGenerator();
+        });
+
+        // pin generation ends here
+
+        // pin input section starts here
+        numberPad("button7");
+        numberPad("button8");
+        numberPad("button9");
+        numberPad("button4");
+        numberPad("button5");
+        numberPad("button6");
+        numberPad("button1");
+        numberPad("button2");
+        numberPad("button3");
+        numberPad("button0");
+        clearScreen("clearButton");
+        checkPinMatching("submitButton");
+        backSpace("backSpaceButton");
+        function numberPad(numbersKeyId){
+            var keyNumber = document.getElementById(numbersKeyId);
+            keyNumber.addEventListener("click", function(){
+                var pinInputDisplayValue = document.getElementById("pinInputDisplay").value;
+                var keyPadValue = document.getElementById(numbersKeyId).innerText;
+                document.getElementById("pinInputDisplay").value = pinInputDisplayValue + keyPadValue;
+            });
+        }
+        function clearScreen(clearKeyId){
+            var clearKey = document.getElementById(clearKeyId);
+            clearKey.addEventListener("click", function(){
+                document.getElementById("pinInputDisplay").value = "";
+            });
+        }
+        function backSpace(backSpaceBtnId){
+            var backSpaceBtn = document.getElementById(backSpaceBtnId);
+            backSpaceBtn.addEventListener("click", function(){
+                let pinInputDisplayValue = document.getElementById("pinInputDisplay").value;
+                document.getElementById("pinInputDisplay").value = pinInputDisplayValue.substr(0, pinInputDisplayValue.length - 1);
+            });
+        }
+        // pin input section ends here
+
+        // pin matching section starts here
+        function checkPinMatching(submitButtonId){
+            var submitBtn = document.getElementById(submitButtonId);
+            submitBtn.addEventListener("click", function pinCheck(){
+                var generatedPin = document.getElementById("pinGenerationDisplay").value;
+                var generatedPinInt = parseInt(generatedPin);
+                var inputedPin = document.getElementById("pinInputDisplay").value;
+                var inputedPinInt = parseInt(inputedPin);
+                if(generatedPinInt === inputedPinInt) {
+                    let popup = document.getElementById("successPopupSection");
+                    popup.classList.add("open-popup");
+                    popupCloseBtn("successPopupSection");
+                }
+                else{
+                    let popup = document.getElementById("unsuccessPopupSection");
+                    popup.classList.add("open-popup");
+                    popupCloseBtn("unsuccessPopupSection");
+                }
+            });
+        }
+        function popupCloseBtn(popupId){
+            var popupCloseButton = document.getElementById(popupId);
+            popupCloseButton.addEventListener("click", function(){
+                let popup = document.getElementById(popupId);
+                popup.classList.remove("open-popup");
+                if(popupId == "successPopupSection"){
+                    document.getElementById("pinGenerationDisplay").value = "";
+                    document.getElementById("pinInputDisplay").value = "";
+                    document.getElementById("pinMatchingCount").innerText = "3";
+                }
+                else if(popupId == "unsuccessPopupSection"){
+                    var pinMatchingCount = document.getElementById("pinMatchingCount").innerText;
+                    var pinMatchingCountInt = parseInt(pinMatchingCount);
+                    pinMatchingCountInt--;
+                    document.getElementById("pinMatchingCount").innerText = pinMatchingCountInt.toString();
+                }
+            });
+        }    
+    </script>
+</body>
+</html>
